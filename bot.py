@@ -7,6 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("GrokBot")
 
+# ← يقرأ من متغيرات Railway تلقائياً
 TOKEN = os.getenv("TOKEN")
 GROQ_API = os.getenv("GROQ_API")
 
@@ -18,7 +19,7 @@ bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
-    logger.info(f"البوت شغال: {bot.user} | السيرفرات: {len(bot.guilds)}")
+    logger.info(f"البوت شغال: {bot.user}")
 
 
 @bot.event
@@ -28,12 +29,7 @@ async def on_message(message):
     if not message.guild:
         return
 
-    bot_mentioned = (
-        bot.user.mentioned_in(message)
-        and not message.mention_everyone
-    )
-
-    if bot_mentioned:
+    if bot.user.mentioned_in(message) and not message.mention_everyone:
         user_msg = message.content
         user_msg = user_msg.replace(f"<@{bot.user.id}>", "")
         user_msg = user_msg.replace(f"<@!{bot.user.id}>", "")
@@ -55,20 +51,15 @@ async def call_groq_api(user_msg: str) -> str:
         "Authorization": f"Bearer {GROQ_API}",
         "Content-Type": "application/json"
     }
-
     payload = {
         "model": "llama3-70b-8192",
         "messages": [
-            {
-                "role": "system",
-                "content": "أنت بوت عربي ساخر وكوميدي، ردودك ذكية ولاذعة ومضحكة."
-            },
+            {"role": "system", "content": "أنت بوت عربي ساخر وكوميدي، ردودك ذكية ولاذعة ومضحكة."},
             {"role": "user", "content": user_msg}
         ],
         "temperature": 0.9,
         "max_tokens": 600
     }
-
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -78,18 +69,18 @@ async def call_groq_api(user_msg: str) -> str:
                 timeout=aiohttp.ClientTimeout(total=15)
             ) as resp:
                 if resp.status != 200:
-                    return f"خطأ من السيرفر (كود: {resp.status})"
+                    return f"خطأ (كود: {resp.status})"
                 data = await resp.json()
                 return data["choices"][0]["message"]["content"]
     except Exception as e:
-        logger.error(f"API Error: {e}")
+        logger.error(f"Error: {e}")
         return "صار خطأ، جرب مرة ثانية"
 
 
 @bot.command(name="ping")
 async def ping(ctx):
-    latency = round(bot.latency * 1000)
-    await ctx.send(f"🏓 البنق: **{latency}ms**")
+    await ctx.send(f"🏓 البنق: **{round(bot.latency * 1000)}ms**")
 
 
-bot.run(MTQ3MTEwMTI1NTk0OTYxOTM1Mw.GAryZh.eG1qS0_ohth7W12tY7PO7MHJjU07-nMQdfpgro)
+# ← هنا يقرأ التوكن من المتغيرات
+bot.run(TOKEN)
