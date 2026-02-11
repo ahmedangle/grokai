@@ -49,7 +49,7 @@ async def call_groq_api(user_msg: str) -> str:
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "llama3-70b-8192",
+        "model": "llama-3.1-8b-instant",  # ← الموديل الجديد
         "messages": [
             {"role": "system", "content": "أنت بوت عربي ساخر وكوميدي، ردودك ذكية ولاذعة ومضحكة."},
             {"role": "user", "content": user_msg}
@@ -66,6 +66,8 @@ async def call_groq_api(user_msg: str) -> str:
                 timeout=aiohttp.ClientTimeout(total=15)
             ) as resp:
                 if resp.status != 200:
+                    error_data = await resp.json()
+                    logger.error(f"API Error: {error_data}")
                     return f"خطأ (كود: {resp.status})"
                 data = await resp.json()
                 return data["choices"][0]["message"]["content"]
