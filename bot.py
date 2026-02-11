@@ -1,15 +1,12 @@
 import discord
 from discord.ext import commands
-import os
 import aiohttp
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("GrokBot")
 
-# ← يقرأ من متغيرات Railway تلقائياً
-TOKEN = os.getenv("TOKEN")
-GROQ_API = os.getenv("GROQ_API")
+GROQ_API = "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"
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -82,5 +79,4 @@ async def ping(ctx):
     await ctx.send(f"🏓 البنق: **{round(bot.latency * 1000)}ms**")
 
 
-# ← هنا يقرأ التوكن من المتغيرات
-bot.run(TOKEN)
+bot.run("MTQ3MTEwMTI1NTk0OTYxOTM1Mw.GH1c-v.JxtC1xBx4POKSsl9cuDJedC12Xfbti0raZDxPU")
